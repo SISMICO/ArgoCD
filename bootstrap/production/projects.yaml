@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  description: Administrators maintain the Application definitions in this project.
+  sourceRepos:
+    - https://git.example.com/platform/platform-config.git
+  destinations:
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: argoproj.io
+      kind: Application
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: demo
+  namespace: argocd
+spec:
+  description: Namespaced demo workloads with no cluster-wide privileges.
+  sourceRepos:
+    - https://git.example.com/platform/workloads.git
+  destinations:
+    - namespace: demo-web
+      server: https://kubernetes.default.svc
+    - namespace: demo-api
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: apps
+      kind: Deployment
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: ResourceQuota
+    - group: ""
+      kind: LimitRange
+    - group: networking.k8s.io
+      kind: Ingress
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+    - group: policy
+      kind: PodDisruptionBudget
+  orphanedResources:
+    warn: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: default
+  namespace: argocd
+spec:
+  sourceRepos: []
+  destinations: []
+  clusterResourceWhitelist: []
+  namespaceResourceBlacklist:
+    - group: "*"
+      kind: "*"

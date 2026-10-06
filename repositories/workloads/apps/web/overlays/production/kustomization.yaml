@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: demo-web
+resources:
+  - ../../base
+  - ingress.yaml
+  - availability.yaml
+  - network-policy.yaml
+replicas:
+  - name: demo-web
+    count: 2
+patches:
+  - path: scheduling.yaml

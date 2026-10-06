@@ -1,0 +1,9 @@
+# /etc/rancher/k3s/config.yaml on the second and third servers.
+server: https://api.k8s.example.com:6443
+token-file: /etc/rancher/k3s/join-token
+secrets-encryption: true
+write-kubeconfig-mode: "0600"
+tls-san:
+  - api.k8s.example.com
+  - 10.0.0.10
+

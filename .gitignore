@@ -1,0 +1,9 @@
+.state/
+.env
+*.pem
+*.key
+*.crt
+__pycache__/
+*.pyc
+*.rendered.yaml
+

@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: demo-web
+spec:
+  podSelector:
+    matchLabels:
+      app: demo-web
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        # Change to the namespace hosting your production Traefik installation.
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+      ports:
+        - protocol: TCP
+          port: 8080
+  # These demos need no outbound network access.
+  egress: []

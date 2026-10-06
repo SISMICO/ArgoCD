@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+data:
+  url: https://argocd.example.com
+  # Keep disabled; use Kubernetes access for emergency recovery.
+  admin.enabled: "false"
+  oidc.config: |
+    name: Company SSO
+    issuer: https://sso.example.com/realms/platform
+    clientID: argocd
+    clientSecret: $oidc.clientSecret
+    requestedScopes: ["openid", "profile", "email", "groups"]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+data:
+  # TLS is terminated by Traefik; keep this backend private.
+  server.insecure: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-rbac-cm
+data:
+  # This role has no permissions; grant access through SSO groups below.
+  policy.default: role:no-access
+  scopes: '[groups]'
+  policy.csv: |
+    g, platform-admins, role:admin
+    p, role:demo-deployer, applications, get, demo/*, allow
+    p, role:demo-deployer, applications, sync, demo/*, allow
+    p, role:demo-deployer, logs, get, demo/*, allow
+    g, demo-deployers, role:demo-deployer
+

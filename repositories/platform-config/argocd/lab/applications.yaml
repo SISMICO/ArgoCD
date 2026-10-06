@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-web
+  namespace: argocd
+spec:
+  project: demo
+  source:
+    repoURL: http://gitea.git.svc.cluster.local:3000/lab-admin/workloads.git
+    targetRevision: main
+    path: apps/web/overlays/lab
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: demo-web
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-api
+  namespace: argocd
+spec:
+  project: demo
+  source:
+    repoURL: http://gitea.git.svc.cluster.local:3000/lab-admin/workloads.git
+    targetRevision: main
+    path: apps/api/overlays/lab
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: demo-api
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

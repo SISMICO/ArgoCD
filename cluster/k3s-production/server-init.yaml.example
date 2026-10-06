@@ -1,0 +1,9 @@
+# /etc/rancher/k3s/config.yaml on the FIRST server only.
+# Replace the API DNS name and private load balancer address.
+cluster-init: true
+secrets-encryption: true
+write-kubeconfig-mode: "0600"
+tls-san:
+  - api.k8s.example.com
+  - 10.0.0.10
+

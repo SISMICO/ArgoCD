@@ -1,0 +1,47 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-web
+  namespace: argocd
+spec:
+  project: demo
+  source:
+    repoURL: https://git.example.com/platform/workloads.git
+    targetRevision: main
+    path: apps/web/overlays/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: demo-web
+  syncPolicy:
+    syncOptions:
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-api
+  namespace: argocd
+spec:
+  project: demo
+  source:
+    repoURL: https://git.example.com/platform/workloads.git
+    targetRevision: main
+    path: apps/api/overlays/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: demo-api
+  syncPolicy:
+    syncOptions:
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

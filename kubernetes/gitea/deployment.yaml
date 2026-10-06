@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: gitea
+  template:
+    metadata:
+      labels:
+        app: gitea
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: gitea
+          image: docker.gitea.com/gitea:1.26.4-rootless
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: GITEA__database__DB_TYPE
+              value: sqlite3
+            - name: GITEA__database__PATH
+              value: /var/lib/gitea/data/gitea.db
+            - name: GITEA__server__DOMAIN
+              value: gitea.localhost
+            - name: GITEA__server__ROOT_URL
+              value: http://gitea.localhost:8080/
+            - name: GITEA__server__HTTP_PORT
+              value: "3000"
+            - name: GITEA__server__DISABLE_SSH
+              value: "true"
+            - name: GITEA__security__INSTALL_LOCK
+              value: "true"
+            - name: GITEA__service__DISABLE_REGISTRATION
+              value: "true"
+            - name: GITEA__repository__DEFAULT_BRANCH
+              value: main
+            - name: GITEA__log__MODE
+              value: console
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            periodSeconds: 5
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: http
+            periodSeconds: 20
+            failureThreshold: 6
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/gitea
+            - name: config
+              mountPath: /etc/gitea
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: gitea-data
+        - name: config
+          persistentVolumeClaim:
+            claimName: gitea-config
+

@@ -1,0 +1,4 @@
+# /etc/rancher/k3s/config.yaml on optional worker nodes.
+server: https://api.k8s.example.com:6443
+token-file: /etc/rancher/k3s/join-token
+
